@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html>
+ 	<head>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
+		<script>
+			function timerCtrl ($scope, $http, $interval) {
+				window.SCOPE_DEBUG = $scope; //REMOVE WHEN FINISHED DEBUGGING
+				$http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/buildType:Dev_IntegrationTests', headers: {'Accept':'application/json'} }).success(function(data){
+							
+					var year = data.finishDate.slice(0, 4);
+					var month = data.finishDate.slice(4, 6);
+					var day = data.finishDate.slice(6, 8);
+					var hour = data.finishDate.slice(9, 11);
+					var min = data.finishDate.slice(11, 13);
+					var sec = data.finishDate.slice(13, 15);
+					$scope.mostRecentBuildTimeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec);
+					$scope.currentTimeStamp = Date.now();
+					$scope.rawTimeElapsed = Math.abs(Math.floor(($scope.mostRecentBuildTimeStamp - $scope.currentTimeStamp) / 1000));
+          $scope.formattedTimeElapsed = {
+            "hour" : 0,
+            "min" : 0,
+            "sec" : 0,
+          }
+
+  				if (data.status === "FAILURE") {
+  					$scope.buildStatus = "broken"	
+  				} else { //"SUCCESS"
+  					$scope.buildStatus = "running"
+  				}
+				});
+
+				$interval(function() {
+          if ($scope.rawTimeElapsed >= 3599) {
+            while ($scope.rawTimeElapsed / 3600 >= 1 ) {
+              $scope.formattedTimeElapsed.hour = $scope.formattedTimeElapsed.hour + 1;
+              $scope.rawTimeElapsed = $scope.rawTimeElapsed - 3601;
+            }
+          }
+          if ($scope.rawTimeElapsed >= 59) {
+            while ($scope.rawTimeElapsed / 60 >= 1 ) {
+              $scope.formattedTimeElapsed.min = $scope.formattedTimeElapsed.min + 1;
+              $scope.rawTimeElapsed = $scope.rawTimeElapsed - 61;
+            }
+          }
+          $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1;
+          $scope.formattedTimeElapsed.sec = $scope.rawTimeElapsed;
+        }, 1000);
+			}; 
+		</script>
+    </head>
+    <body ng-app>
+        <div ng-controller="timerCtrl" style="display: flex; justify-content: center; align-items: center; height: 500px; font-size: 100px;">
+            <div>Build has been {{buildStatus}} for </div>
+            <div>{{formattedTimeElapsed.hour}} : {{formattedTimeElapsed.min}} : {{formattedTimeElapsed.sec}}</div>
+        </div>
+    </body>
+</html>
