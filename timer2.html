@@ -4,7 +4,6 @@
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
 		<script>
 			function timerCtrl ($scope, $http, $interval) {
-				window.SCOPE_DEBUG = $scope; //REMOVE WHEN FINISHED DEBUGGING
 				$http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/buildType:Dev_IntegrationTests', headers: {'Accept':'application/json'} }).success(function(data){
 							
 					var year = data.finishDate.slice(0, 4);
@@ -31,15 +30,15 @@
 
 				$interval(function() {
           if ($scope.rawTimeElapsed >= 3599) {
-            while ($scope.rawTimeElapsed / 3600 >= 1 ) {
+            while ($scope.rawTimeElapsed - 3599 >= 0 ) {
               $scope.formattedTimeElapsed.hour = $scope.formattedTimeElapsed.hour + 1;
-              $scope.rawTimeElapsed = $scope.rawTimeElapsed - 3601;
+              $scope.rawTimeElapsed = $scope.rawTimeElapsed - 3600;
             }
           }
           if ($scope.rawTimeElapsed >= 59) {
-            while ($scope.rawTimeElapsed / 60 >= 1 ) {
+            while ($scope.rawTimeElapsed - 59 >= 0 ) {
               $scope.formattedTimeElapsed.min = $scope.formattedTimeElapsed.min + 1;
-              $scope.rawTimeElapsed = $scope.rawTimeElapsed - 61;
+              $scope.rawTimeElapsed = $scope.rawTimeElapsed - 60;
             }
           }
           $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1;
@@ -49,7 +48,7 @@
 		</script>
     </head>
     <body ng-app>
-        <div ng-controller="timerCtrl" style="display: flex; justify-content: center; align-items: center; height: 500px; font-size: 100px;">
+        <div ng-controller="timerCtrl" style="font-size: 100px;">
             <div>Build has been {{buildStatus}} for </div>
             <div>{{formattedTimeElapsed.hour}} : {{formattedTimeElapsed.min}} : {{formattedTimeElapsed.sec}}</div>
         </div>
