@@ -2,6 +2,7 @@
 <html>
  	<head>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
+    <link rel="stylesheet" href="styles.css" type="text/css"></script>
 		<script>
 			function timerCtrl ($scope, $http, $interval) {
 				$http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/buildType:Dev_IntegrationTests', headers: {'Accept':'application/json'} }).success(function(data){	
@@ -45,7 +46,7 @@
 		</script>
     </head>
     <body ng-app>
-        <div ng-controller="timerCtrl" style="font-size: 100px;">
+        <div ng-controller="timerCtrl" id="main-display">
             <div>Dev Build has been {{buildStatus}} for </div>
             <div>{{formattedTimeElapsed.hour}} : {{formattedTimeElapsed.min}} : {{formattedTimeElapsed.sec}}</div>
         </div>
