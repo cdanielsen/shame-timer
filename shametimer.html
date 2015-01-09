@@ -2,7 +2,9 @@
 <html>
  	<head>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
-    <link rel="stylesheet" href="styles.css" type="text/css"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Play' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="styles.css" type="text/css">
 		<script>
 			function timerCtrl ($scope, $http, $interval) {
 				$http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/buildType:Dev_IntegrationTests', headers: {'Accept':'application/json'} }).success(function(data){	
@@ -44,10 +46,22 @@
         }, 1000);
 			}; 
 		</script>
+    <script>
+      $(document).ready(function() {
+        var buildStatus = $('.buildStatus');
+        buildStatus.removeClass("running-color");
+        buildStatus.removeClass("broken-color");
+        if (buildStatus.text() === "running") {
+          buildStatus.addClass("running-color");
+        } else {
+          buildStatus.addClass("running-color");
+        }
+      });
+    </script>
     </head>
     <body ng-app>
         <div ng-controller="timerCtrl" id="main-display">
-            <div>Dev Build has been {{buildStatus}} for </div>
+            <div>Dev Build has been <span class="buildStatus">{{buildStatus}}</span> for </div>
             <div>{{formattedTimeElapsed.hour}} : {{formattedTimeElapsed.min}} : {{formattedTimeElapsed.sec}}</div>
         </div>
     </body>

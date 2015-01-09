@@ -4,5 +4,14 @@
   flex-direction: column;
 	justify-content: center;
   align-items: center;
+  font-family: 'Play', sans-serif;
   font-size: 100px;
+}
+
+.buildStatus.running-color {
+	color: green;
+}
+
+.buildStatus.broken-color {
+	color: red;
 }
