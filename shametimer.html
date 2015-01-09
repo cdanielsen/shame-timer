@@ -4,52 +4,49 @@
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
 		<script>
 			function timerCtrl ($scope, $http, $interval) {
-				$http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/buildType:Dev_IntegrationTests', headers: {'Accept':'application/json'} }).success(function(data){
-							
-					var year = data.finishDate.slice(0, 4);
-					var month = data.finishDate.slice(4, 6);
-					var day = data.finishDate.slice(6, 8);
-					var hour = data.finishDate.slice(9, 11);
-					var min = data.finishDate.slice(11, 13);
-					var sec = data.finishDate.slice(13, 15);
-					$scope.mostRecentBuildTimeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec);
-					$scope.currentTimeStamp = Date.now();
-					$scope.rawTimeElapsed = Math.abs(Math.floor(($scope.mostRecentBuildTimeStamp - $scope.currentTimeStamp) / 1000));
+				$http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/buildType:Dev_IntegrationTests', headers: {'Accept':'application/json'} }).success(function(data){	
+  					var year = data.finishDate.slice(0, 4);
+  					var month = data.finishDate.slice(4, 6);
+  					var day = data.finishDate.slice(6, 8);
+  					var hour = data.finishDate.slice(9, 11);
+  					var min = data.finishDate.slice(11, 13);
+  					var sec = data.finishDate.slice(13, 15);
+  					var mostRecentBuildTimeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec);
+  					var currentTimeStamp = Date.now();
+  					$scope.rawTimeElapsed = Math.abs(Math.floor((mostRecentBuildTimeStamp - currentTimeStamp) / 1000));
+            if (data.status === "FAILURE") {
+              $scope.buildStatus = "broken" 
+            } else { //"SUCCESS"
+              $scope.buildStatus = "running"
+            }
+          });
+
+        $interval(function() {
           $scope.formattedTimeElapsed = {
             "hour" : 0,
             "min" : 0,
             "sec" : 0,
           }
-
-  				if (data.status === "FAILURE") {
-  					$scope.buildStatus = "broken"	
-  				} else { //"SUCCESS"
-  					$scope.buildStatus = "running"
-  				}
-				});
-
-				$interval(function() {
-          if ($scope.rawTimeElapsed >= 3599) {
-            while ($scope.rawTimeElapsed - 3599 >= 0 ) {
-              $scope.formattedTimeElapsed.hour = $scope.formattedTimeElapsed.hour + 1;
-              $scope.rawTimeElapsed = $scope.rawTimeElapsed - 3600;
-            }
+          var timeReduction = $scope.rawTimeElapsed
+          while (timeReduction >= 3600) {
+            $scope.formattedTimeElapsed.hour = $scope.formattedTimeElapsed.hour + 1;
+            $scope.formattedTimeElapsed.min = 0;
+            timeReduction = timeReduction - 3600;
           }
-          if ($scope.rawTimeElapsed >= 59) {
-            while ($scope.rawTimeElapsed - 59 >= 0 ) {
-              $scope.formattedTimeElapsed.min = $scope.formattedTimeElapsed.min + 1;
-              $scope.rawTimeElapsed = $scope.rawTimeElapsed - 60;
-            }
+          while (timeReduction >= 60 ) {
+            $scope.formattedTimeElapsed.min = $scope.formattedTimeElapsed.min + 1;
+            $scope.formattedTimeElapsed.sec = 0;
+            timeReduction = timeReduction - 60;
           }
+          $scope.formattedTimeElapsed.sec = timeReduction;
           $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1;
-          $scope.formattedTimeElapsed.sec = $scope.rawTimeElapsed;
         }, 1000);
 			}; 
 		</script>
     </head>
     <body ng-app>
         <div ng-controller="timerCtrl" style="font-size: 100px;">
-            <div>Build has been {{buildStatus}} for </div>
+            <div>Dev Build has been {{buildStatus}} for </div>
             <div>{{formattedTimeElapsed.hour}} : {{formattedTimeElapsed.min}} : {{formattedTimeElapsed.sec}}</div>
         </div>
     </body>
