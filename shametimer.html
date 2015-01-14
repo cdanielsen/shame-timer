@@ -7,44 +7,49 @@
     <link href='http://fonts.googleapis.com/css?family=Play' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="styles.css" type="text/css">
 		<script>
-    /*
-      function devHealthCheck () {
-        //loop through each buildType and return data object
-        //assign each object with a failing status to an array?
-        //if failing, use timestamp of first one to run timerCtrl
-        //if successful, use (last?/first?) one?
-        $http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/buildType:Dev_IntegrationTests', headers: {'Accept':'application/json'} }).success(function(data){
-      }
-    */
-			function timerCtrl ($scope, $http, $interval) {
-				$http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/buildType:Dev_IntegrationTests', headers: {'Accept':'application/json'} }).success(function(data){
-  					var year = data.finishDate.slice(0, 4);
-  					var month = data.finishDate.slice(4, 6);
-  					var day = data.finishDate.slice(6, 8);
-  					var hour = data.finishDate.slice(9, 11);
-  					var min = data.finishDate.slice(11, 13);
-  					var sec = data.finishDate.slice(13, 15);
-  					var mostRecentBuildTimeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec);
-  					var currentTimeStamp = Date.now();
-  					$scope.rawTimeElapsed = Math.abs((mostRecentBuildTimeStamp - currentTimeStamp)); //milliseconds
-            if (data.status === "FAILURE") {
-              $scope.buildStatus = "broken"; 
-            } else { //"SUCCESS"
-              $scope.buildStatus = "running";
-            }
-          });
+    
+      function timerCtrl($scope, $http, $interval){
+        $scope.buildStatus = "running";
+        $http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/project:Dev,status:FAILURE', headers: {'Accept':'application/json'} }).success(function(data){
+            var year = data.finishDate.slice(0, 4);
+            var month = data.finishDate.slice(4, 6);
+            var day = data.finishDate.slice(6, 8);
+            var hour = data.finishDate.slice(9, 11);
+            var min = data.finishDate.slice(11, 13);
+            var sec = data.finishDate.slice(13, 15);
+            var mostRecentBuildTimeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec);
+            var currentTimeStamp = Date.now();
+            $scope.rawTimeElapsed = Math.abs((mostRecentBuildTimeStamp - currentTimeStamp));
+            $scope.buildStatus = "broken";
+        });
+
+        if ($scope.buildStatus === "running") {
+
+          $http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/project:Dev,status:SUCCESS', headers: {'Accept':'application/json'} }).success(function(data){
+              var year = data.finishDate.slice(0, 4);
+              var month = data.finishDate.slice(4, 6);
+              var day = data.finishDate.slice(6, 8);
+              var hour = data.finishDate.slice(9, 11);
+              var min = data.finishDate.slice(11, 13);
+              var sec = data.finishDate.slice(13, 15);
+              var mostRecentBuildTimeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec);
+              var currentTimeStamp = Date.now();
+              $scope.rawTimeElapsed = Math.abs((mostRecentBuildTimeStamp - currentTimeStamp));
+          });    //end $http.success
+        };       //end if
 
         $interval(function() {
           $scope.formattableTime = moment.duration($scope.rawTimeElapsed);
           $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1000;
         }, 1000);
       }; //end timerCtrl
-		</script>
+    </script>
+
     </head>
     <body ng-app>
         <div ng-controller="timerCtrl" id="main-display">
-            <div>Dev Build has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'running': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span> for </div>
-            <div>{{formattableTime.hours()}} : {{formattableTime.minutes()}} : {{formattableTime.seconds()}}</div>
+          <div>Dev Build has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'running': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span> for </div>
+          <div>{{formattableTime.hours()}} : {{formattableTime.minutes()}} : {{formattableTime.seconds()}}</div>
         </div>
     </body>
 </html>
