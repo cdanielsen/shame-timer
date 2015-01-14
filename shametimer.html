@@ -3,11 +3,21 @@
  	<head>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
     <link href='http://fonts.googleapis.com/css?family=Play' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="styles.css" type="text/css">
 		<script>
+    /*
+      function devHealthCheck () {
+        //loop through each buildType and return data object
+        //assign each object with a failing status to an array?
+        //if failing, use timestamp of first one to run timerCtrl
+        //if successful, use (last?/first?) one?
+        $http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/buildType:Dev_IntegrationTests', headers: {'Accept':'application/json'} }).success(function(data){
+      }
+    */
 			function timerCtrl ($scope, $http, $interval) {
-				$http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/buildType:Dev_IntegrationTests', headers: {'Accept':'application/json'} }).success(function(data){	
+				$http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/buildType:Dev_IntegrationTests', headers: {'Accept':'application/json'} }).success(function(data){
   					var year = data.finishDate.slice(0, 4);
   					var month = data.finishDate.slice(4, 6);
   					var day = data.finishDate.slice(6, 8);
@@ -16,53 +26,25 @@
   					var sec = data.finishDate.slice(13, 15);
   					var mostRecentBuildTimeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec);
   					var currentTimeStamp = Date.now();
-  					$scope.rawTimeElapsed = Math.abs(Math.floor((mostRecentBuildTimeStamp - currentTimeStamp) / 1000));
+  					$scope.rawTimeElapsed = Math.abs((mostRecentBuildTimeStamp - currentTimeStamp)); //milliseconds
             if (data.status === "FAILURE") {
-              $scope.buildStatus = "broken" 
+              $scope.buildStatus = "broken"; 
             } else { //"SUCCESS"
-              $scope.buildStatus = "running"
+              $scope.buildStatus = "running";
             }
           });
 
         $interval(function() {
-          $scope.formattedTimeElapsed = {
-            "hour" : 0,
-            "min" : 0,
-            "sec" : 0,
-          }
-          var timeReduction = $scope.rawTimeElapsed
-          while (timeReduction >= 3600) {
-            $scope.formattedTimeElapsed.hour = $scope.formattedTimeElapsed.hour + 1;
-            $scope.formattedTimeElapsed.min = 0;
-            timeReduction = timeReduction - 3600;
-          }
-          while (timeReduction >= 60 ) {
-            $scope.formattedTimeElapsed.min = $scope.formattedTimeElapsed.min + 1;
-            $scope.formattedTimeElapsed.sec = 0;
-            timeReduction = timeReduction - 60;
-          }
-          $scope.formattedTimeElapsed.sec = timeReduction;
-          $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1;
+          $scope.formattableTime = moment.duration($scope.rawTimeElapsed);
+          $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1000;
         }, 1000);
-			}; 
+      }; //end timerCtrl
 		</script>
-    <script>
-      $(document).ready(function() {
-        var buildStatus = $('.buildStatus');
-        buildStatus.removeClass("running-color");
-        buildStatus.removeClass("broken-color");
-        if (buildStatus.text() === "running") {
-          buildStatus.addClass("running-color");
-        } else {
-          buildStatus.addClass("running-color");
-        }
-      });
-    </script>
     </head>
     <body ng-app>
         <div ng-controller="timerCtrl" id="main-display">
-            <div>Dev Build has been <span class="buildStatus">{{buildStatus}}</span> for </div>
-            <div>{{formattedTimeElapsed.hour}} : {{formattedTimeElapsed.min}} : {{formattedTimeElapsed.sec}}</div>
+            <div>Dev Build has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'running': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span> for </div>
+            <div>{{formattableTime.hours()}} : {{formattableTime.minutes()}} : {{formattableTime.seconds()}}</div>
         </div>
     </body>
 </html>

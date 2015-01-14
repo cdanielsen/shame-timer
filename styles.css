@@ -8,10 +8,10 @@
   font-size: 100px;
 }
 
-.buildStatus.running-color {
+.statusColor.running-color {
 	color: green;
 }
 
-.buildStatus.broken-color {
+.statusColor.broken-color {
 	color: red;
 }
