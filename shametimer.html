@@ -9,13 +9,23 @@
 		<script>
     
     
-      var getDevBuilds = function(){
+      function getDevBuilds(){
         var newRequest = new XMLHttpRequest();
-        newRequest.open("GET", 'http://teamcity:8080/httpAuth/app/rest/builds/project:Dev', false); //false = synchronous request
+        newRequest.open("GET", 'http://teamcity:8080/httpAuth/app/rest/projects/Dev', false); //false = synchronous request
         newRequest.setRequestHeader('Accept', 'application/json');
         newRequest.send();
         response = JSON.parse(newRequest.response);
         return response;
+      }
+
+      function populateBuildNames(){
+        devBuildNames = [];
+        currentDevInfo = getDevBuilds();
+        console.log(currentDevInfo);
+        currentDevInfo.buildTypes.buildType.forEach(function(build){
+          devBuildNames.push(build.id);
+        });
+        return devBuildNames;
       }
 
       function timerCtrl($scope, $http, $interval){
@@ -54,7 +64,7 @@
         }, 1000);
       }; //end timerCtrl
       
-      
+      populateBuildNames();
     </script>
 
     </head>
