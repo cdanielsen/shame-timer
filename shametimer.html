@@ -8,6 +8,16 @@
     <link rel="stylesheet" href="styles.css" type="text/css">
 		<script>
     
+    
+      var getDevBuilds = function(){
+        var newRequest = new XMLHttpRequest();
+        newRequest.open("GET", 'http://teamcity:8080/httpAuth/app/rest/builds/project:Dev', false); //false = synchronous request
+        newRequest.setRequestHeader('Accept', 'application/json');
+        newRequest.send();
+        response = JSON.parse(newRequest.response);
+        return response;
+      }
+
       function timerCtrl($scope, $http, $interval){
         $scope.buildStatus = "running";
         $http({method: 'GET', url: 'http://teamcity:8080/httpAuth/app/rest/builds/project:Dev,status:FAILURE', headers: {'Accept':'application/json'} }).success(function(data){
@@ -43,6 +53,8 @@
           $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1000;
         }, 1000);
       }; //end timerCtrl
+      
+      
     </script>
 
     </head>
