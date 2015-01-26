@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="styles.css" type="text/css">
 		<script>
     
-      var passingDevBuilds = [];
-      var failingDevBuilds = [];
+      var currentPassingDevBuilds = [];
+      var currentFailingDevBuilds = [];
 
       function getDevBuildNames(){
         var devBuildNames = [];
@@ -38,14 +38,14 @@
           var currentBuild = JSON.parse(newRequest.response);
           
           if (currentBuild.status === "SUCCESS") {
-            passingDevBuilds.push(currentBuild);
+            currentPassingDevBuilds.push(currentBuild);
           } else {
-            failingDevBuilds.push(currentBuild);
+            currentFailingDevBuilds.push(currentBuild);
           }
-        }); 
+        });
       };
 
-      function sortBuildObjects(buildArray){
+      function sortSetOfBuilds(buildArray){
         buildArray.sort(function(a,b){
           var aTimeStamp = createTimeStamp(a);
           var bTimeStamp = createTimeStamp(b);
@@ -64,13 +64,19 @@
         return new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec);
       }
 
+      //Begin function calls to find get current builds and sort them into passing/failing
+
       getDevBuildNames();
       seperateBuildObjects();
-      var mostRecentPassingBuild = sortBuildObjects(passingDevBuilds).reverse()[0];
-      var mostRecentFailingBuild = sortBuildObjects(failingDevBuilds).reverse()[0];
+      if ( currentPassingDevBuilds != [] ) { var mostRecentPassingBuild = sortSetOfBuilds(currentPassingDevBuilds).reverse()[0]; }
+      if ( currentFailingDevBuilds != [] ) { var mostRecentFailingBuild = sortSetOfBuilds(currentFailingDevBuilds).reverse()[0]; }
+
+      //End function calls
+
+      //Begin angular controller
 
       function timerCtrl($scope, $interval){
-        if (failingDevBuilds === []) { //change after testing
+        if (currentFailingDevBuilds.length === 0) {
           $scope.buildStatus = "running";
           var currentTimeStamp = Date.now();
           var mostRecentPassingBuildTimeStamp = createTimeStamp(mostRecentPassingBuild);
@@ -79,7 +85,6 @@
           $scope.buildStatus = "broken";
           var currentTimeStamp = Date.now();
           var mostRecentFailingBuildTimeStamp = createTimeStamp(mostRecentFailingBuild);
-          console.log(mostRecentFailingBuildTimeStamp);
           $scope.rawTimeElapsed = Math.abs(mostRecentFailingBuildTimeStamp - currentTimeStamp);
         }
           $interval(function() {
@@ -87,12 +92,16 @@
             $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1000;
           }, 1000);
       };
+
+      //End controller
+      
     </script>
 
     </head>
     <body ng-app>
         <div ng-controller="timerCtrl" id="main-display">
-          <div>Dev Build has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'running': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span> for </div>
+          <div>Dev Build has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'running': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span></div>
+          <div>for at least</div>
           <div>{{formattableTime.hours()}} : {{formattableTime.minutes()}} : {{formattableTime.seconds()}}</div>
         </div>
     </body>
