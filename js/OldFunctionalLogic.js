@@ -6,8 +6,9 @@
         var devBuildNames = [];
         var newRequest = new XMLHttpRequest();
 
-        newRequest.open("GET", 'http://teamcity:8080/httpAuth/app/rest/projects/Dev', false); //false = synchronous request
+        newRequest.open("GET", 'http://teamcity:8080/guestAuth/app/rest/projects/Dev', false); //false = synchronous request
         newRequest.setRequestHeader('Accept', 'application/json');
+        // newRequest.setRequestHeader('Authorization', 'Basic YXBpdXNlcjp0ZXN0')
         newRequest.send();
         var currentDevInfo = JSON.parse(newRequest.response);
         
@@ -18,7 +19,7 @@
       }
 
       function seperateBuildObjects(){
-        var baseUrl = 'http://teamcity:8080/httpAuth/app/rest/builds/buildType:'
+        var baseUrl = 'http://teamcity:8080/guestAuth/app/rest/builds/buildType:'
         var newRequest = new XMLHttpRequest;
         var devBuildNames = getDevBuildNames();
 
