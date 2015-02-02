@@ -1,64 +1,43 @@
 
 describe("CurrentBuildSet", function() {
-	
+  var baseUrl = "http://teamcity:8080/guestAuth/app/rest/";
+  var resourcePath = "projects/Dev";
+  var testBuildSet = Object.create(CurrentBuildSet);
+
+  beforeEach(function(){
+    testBuildSet.initialize(baseUrl, resourcePath);
+  });
+
   describe("#initialize", function() {
-  	it("should set build and build names properties to be a empty arrays", function() {
-      var testBuildSet = Object.create(CurrentBuildSet);
-      testBuildSet.initialize();
-  		expect(testBuildSet.builds).toEqual([]);
-      expect(testBuildSet.buildNames).toEqual([]);
-  	});
-
-  	it("should set status to be an empty string", function() {
-      var testBuildSet = Object.create(CurrentBuildSet);
-      testBuildSet.initialize();
-      expect(testBuildSet.status).toBe("");
-    });
-
-    it("should set the baseUrl and resourcePath properties based on input", function() {
-      var baseUrl = "http://teamcity:8080/guestAuth/app/rest/";
-      var resourcePath = "projects/Dev";
-      var testBuildSet = Object.create(CurrentBuildSet);
-      testBuildSet.initialize(baseUrl, resourcePath);
+    it("should set the baseUrl and resourcePath properties based on arguments", function() {
       expect(testBuildSet.baseUrl).toBe(baseUrl);
       expect(testBuildSet.resourcePath).toBe(resourcePath);
-    })
+    });
+
+    it("should set build names, builds and status properties", function() {
+      expect(testBuildSet.buildNames).toBeNonEmptyArray();
+      expect(testBuildSet.builds).toBeNonEmptyArray();
+      expect(testBuildSet.status).toBeNonEmptyString();
+    });
   });  //end #initialize
 
   describe("#getDevBuildNames", function(){
+
     it("should populate the build names array with the current build names", function(){
-      var baseUrl = "http://teamcity:8080/guestAuth/app/rest/";
-      var resourcePath = "projects/Dev";
-      var testBuildSet = Object.create(CurrentBuildSet);
-      testBuildSet.initialize(baseUrl, resourcePath);
-      testBuildSet.getDevBuildNames();
       expect(testBuildSet.buildNames).toBeNonEmptyArray();
     });
 	}); //end #getDevBuildNames
 
   describe("#getDevBuildObjects", function() {
     it("should populate the builds array with the current build objects", function(){
-      var baseUrl = "http://teamcity:8080/guestAuth/app/rest/";
-      var resourcePath = "projects/Dev";
-      var testBuildSet = Object.create(CurrentBuildSet);
-      testBuildSet.initialize(baseUrl, resourcePath);
-      testBuildSet.getDevBuildNames();
-      testBuildSet.getDevBuildObjects();
       expect(testBuildSet.builds).toBeNonEmptyArray();
     });
-  });
+  }); //end #getDevBuildObjects
 
   describe("#setBuildSetStatus", function() {
     it("should loop through the current build set to find any failing builds", function() {
-      var baseUrl = "http://teamcity:8080/guestAuth/app/rest/";
-      var resourcePath = "projects/Dev";
-      var testBuildSet = Object.create(CurrentBuildSet);
-      testBuildSet.initialize(baseUrl, resourcePath);
-      testBuildSet.getDevBuildNames();
-      testBuildSet.getDevBuildObjects();
-      testBuildSet.setBuildSetStatus();
       expect(testBuildSet.status).toBeNonEmptyString();
     });
-  });
+  }); //end #setBuildSetStatus
   
 });

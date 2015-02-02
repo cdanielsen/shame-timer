@@ -6,6 +6,9 @@ var CurrentBuildSet = {
     this.status = "";
     this.baseUrl = baseUrl;
     this.resourcePath = resourcePath;
+    this.getDevBuildNames();
+    this.getDevBuildObjects();
+    this.setBuildSetStatus();
 	},
 
 	getDevBuildNames : function() {
