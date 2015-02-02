@@ -7,6 +7,7 @@ var CurrentBuildSet = {
     this.baseUrl = baseUrl;
     this.resourcePath = resourcePath;
 	},
+
 	getDevBuildNames : function() {
     var that = this;
     var newRequest = Object.create(AsyncGetRequest);
@@ -17,8 +18,9 @@ var CurrentBuildSet = {
       that.buildNames.push(build.id);
     });
 	},
+
   getDevBuildObjects : function() {
-    that = this;
+    var that = this;
     var baseUrl = 'http://teamcity:8080/guestAuth/app/rest/builds/buildType:'
     this.buildNames.forEach(function(buildName) {
       var newRequest = Object.create(AsyncGetRequest);
@@ -26,5 +28,16 @@ var CurrentBuildSet = {
       newRequest.execute();
       that.builds.push(newRequest.response)
     });    
+  },
+
+  setBuildSetStatus : function() {
+    var that = this;
+    this.builds.forEach(function(build) {
+      if (build.status === "SUCCESS") {
+        that.status = "SUCCESS";
+      } else {
+        that.status = "FAILURE";
+      }
+    });
   }
 }

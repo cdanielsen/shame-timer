@@ -47,4 +47,18 @@ describe("CurrentBuildSet", function() {
       expect(testBuildSet.builds).toBeNonEmptyArray();
     });
   });
+
+  describe("#setBuildSetStatus", function() {
+    it("should loop through the current build set to find any failing builds", function() {
+      var baseUrl = "http://teamcity:8080/guestAuth/app/rest/";
+      var resourcePath = "projects/Dev";
+      var testBuildSet = Object.create(CurrentBuildSet);
+      testBuildSet.initialize(baseUrl, resourcePath);
+      testBuildSet.getDevBuildNames();
+      testBuildSet.getDevBuildObjects();
+      testBuildSet.setBuildSetStatus();
+      expect(testBuildSet.status).toBeNonEmptyString();
+    });
+  });
+  
 });
