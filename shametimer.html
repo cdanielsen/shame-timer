@@ -2,30 +2,36 @@
  	<head>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+    <script src="js/AsyncGetRequest.js"></script>
+    <script src="js/CurrentBuildSet.js"></script>
+    <script src="js/LastBuildWithOtherStatus.js"></script>
     <link href='http://fonts.googleapis.com/css?family=Play' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="styles.css" type="text/css">
-		<script src="js/OldFunctionalLogic.js"></script>
-    <!-- Include the above script to use the old functional logic of the timer -->
+
     <script>
 
+      var baseUrl = "http://teamcity:8080/guestAuth/app/rest/";
+      var projectResourcePath = "projects/Dev";
+      var currentDevBuilds = Object.create(CurrentBuildSet);
+      currentDevBuilds.initialize(baseUrl, projectResourcePath);
+      var lastBuildWithOtherStatus = Object.create(LastBuildWithOtherStatus);
+      lastBuildWithOtherStatus.initialize(currentDevBuilds);
+      
       //Begin angular controller
-
       function timerCtrl($scope, $interval){
-        if (currentFailingDevBuilds.length === 0) {
+        if (currentDevBuilds.status === "SUCCESS") {
           $scope.buildStatus = "running";
-          var currentTimeStamp = Date.now();
-          var mostRecentPassingBuildTimeStamp = createTimeStamp(mostRecentPassingBuild);
-          $scope.rawTimeElapsed = Math.abs(mostRecentPassingBuildTimeStamp - currentTimeStamp);
         } else {
           $scope.buildStatus = "broken";
-          var currentTimeStamp = Date.now();
-          var mostRecentFailingBuildTimeStamp = createTimeStamp(mostRecentFailingBuild);
-          $scope.rawTimeElapsed = Math.abs(mostRecentFailingBuildTimeStamp - currentTimeStamp);
         }
-          $interval(function() {
-            $scope.formattableTime = moment.duration($scope.rawTimeElapsed);
-            $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1000;
-          }, 1000);
+        
+        var currentTimeStamp = Date.now();
+        $scope.rawTimeElapsed = Math.abs(lastBuildWithOtherStatus.timeStamp - currentTimeStamp);
+
+        $interval(function() {
+          $scope.formattableTime = moment.duration($scope.rawTimeElapsed);
+          $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1000;
+        }, 1000);
       };
 
       //End controller

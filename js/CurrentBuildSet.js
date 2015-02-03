@@ -3,7 +3,7 @@ var CurrentBuildSet = {
 	initialize : function(baseUrl, resourcePath) {
 		this.builds = [];
 		this.buildNames = [];
-    this.status = "";
+    this.status = "SUCCESS";
     this.baseUrl = baseUrl;
     this.resourcePath = resourcePath;
     this.getDevBuildNames();
@@ -36,11 +36,7 @@ var CurrentBuildSet = {
   setBuildSetStatus : function() {
     var that = this;
     this.builds.forEach(function(build) {
-      if (build.status === "SUCCESS") {
-        that.status = "SUCCESS";
-      } else {
-        that.status = "FAILURE";
-      }
+      if (build.status === "FAILURE") { that.status = "FAILURE" };
     });
   }
 }
