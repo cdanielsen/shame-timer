@@ -1,5 +1,5 @@
 
-var AsyncGetRequest = {
+var SyncGetRequest = {
   initialize: function(baseUrl, resourcePath) {
     this.baseUrl = baseUrl;
     this.resourcePath = resourcePath;

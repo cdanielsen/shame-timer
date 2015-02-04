@@ -1,28 +1,28 @@
 var LastBuildWithOtherStatus = {
 	initialize : function(currentBuildSetObject) {
-     console.log("***Build Set List Status History***");
+     console.log("***Build Set Status History***");
      this.buildHistories = {};
      this.lastBuildWithOtherStatus = {};
      this.timeStamp = {};
      this.buildHistoryCounter = 1;
      this.currentBuildSetObject = currentBuildSetObject;
+     this.lastBuildName = this.currentBuildSetObject.buildNames[this.currentBuildSetObject.buildNames.length - 1];
      this.getBuildHistories();
      this.getLastBuildWithOtherStatus();
      this.setTimestamp();
-     console.log("Last build set with opposite status:", this.timeStamp);
+     console.log("Last build in a previous set with same overall status as current:", this.timeStamp, this.lastBuildWithOtherStatus);
 	},
   getBuildHistories : function() {
     var that = this;
     var baseUrl = "http://teamcity:8080/guestAuth/app/rest/builds/?locator=buildType:";
     this.currentBuildSetObject.buildNames.forEach(function(buildName) {
-      var newRequest = Object.create(AsyncGetRequest);
+      var newRequest = Object.create(SyncGetRequest);
       newRequest.initialize(baseUrl, buildName);
       newRequest.execute();
       that.buildHistories[buildName] = newRequest.response.build;
     });
   },
   getLastBuildWithOtherStatus : function() {
-    var that = this;
     var currentSet = [];
     for (var buildHistory in this.buildHistories) {
       currentSet.push(this.buildHistories[buildHistory][this.buildHistoryCounter].status);
@@ -30,7 +30,7 @@ var LastBuildWithOtherStatus = {
     console.log(currentSet);
     if (this.currentBuildSetObject.status === "SUCCESS") {
       if (currentSet.indexOf("FAILURE") !== -1) {
-        this.lastBuildWithOtherStatus = Object.keys(this.buildHistories)[0][that.buildHistoryCounter];
+        this.lastBuildWithOtherStatus = this.buildHistories[this.lastBuildName][this.buildHistoryCounter - 1];
       } else {
         this.buildHistoryCounter = this.buildHistoryCounter + 1;
         getLastBuildWithOtherStatus();
@@ -38,7 +38,7 @@ var LastBuildWithOtherStatus = {
 
     } else { //"FAILURE"
       if (currentSet.indexOf("FAILURE") === -1) {
-        this.lastBuildWithOtherStatus = this.buildHistories["Dev_Build"][that.buildHistoryCounter];
+        this.lastBuildWithOtherStatus = this.buildHistories[this.lastBuildName][this.buildHistoryCounter - 1];
       } else {
         this.buildHistoryCounter = this.buildHistoryCounter + 1;
         this.getLastBuildWithOtherStatus();

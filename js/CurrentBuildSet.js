@@ -13,7 +13,7 @@ var CurrentBuildSet = {
 
 	getDevBuildNames : function() {
     var that = this;
-    var newRequest = Object.create(AsyncGetRequest);
+    var newRequest = Object.create(SyncGetRequest);
     newRequest.initialize(this.baseUrl, this.resourcePath);
     newRequest.execute();
     var currentDevInfo = newRequest.response;
@@ -27,7 +27,7 @@ var CurrentBuildSet = {
     var that = this;
     var baseUrl = 'http://teamcity:8080/guestAuth/app/rest/builds/buildType:'
     this.buildNames.forEach(function(buildName) {
-      var newRequest = Object.create(AsyncGetRequest);
+      var newRequest = Object.create(SyncGetRequest);
       newRequest.initialize(baseUrl, buildName);
       newRequest.execute();
       that.builds.push(newRequest.response)
