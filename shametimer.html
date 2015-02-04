@@ -16,8 +16,10 @@
       currentDevBuilds.initialize(baseUrl, projectResourcePath);
       var lastBuildWithOtherStatus = Object.create(LastBuildWithOtherStatus);
       lastBuildWithOtherStatus.initialize(currentDevBuilds);
-      
+
+
       //Begin angular controller
+
       function timerCtrl($scope, $interval){
         if (currentDevBuilds.status === "SUCCESS") {
           $scope.buildStatus = "running";
@@ -43,7 +45,7 @@
         <div ng-controller="timerCtrl" id="main-display">
           <div>Dev Build has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'running': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span></div>
           <div>for at least</div>
-          <div>{{formattableTime.hours()}} : {{formattableTime.minutes()}} : {{formattableTime.seconds()}}</div>
+          <div>{{formattableTime.days()}} : {{formattableTime.hours()}} : {{formattableTime.minutes()}} : {{formattableTime.seconds()}}</div>
         </div>
     </body>
 </html>

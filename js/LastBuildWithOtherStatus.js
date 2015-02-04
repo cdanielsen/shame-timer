@@ -9,7 +9,7 @@ var LastBuildWithOtherStatus = {
      this.getBuildHistories();
      this.getLastBuildWithOtherStatus();
      this.setTimestamp();
-     console.log(this.timeStamp);
+     console.log("Last build set with opposite status:", this.timeStamp);
 	},
   getBuildHistories : function() {
     var that = this;
@@ -50,10 +50,10 @@ var LastBuildWithOtherStatus = {
     var year = teamCityTime.slice(0, 4);
     var month = teamCityTime.slice(4, 6);
     var day = teamCityTime.slice(6, 8);
-    var hour = teamCityTime.slice(9, 11);
+    var hour = parseInt(teamCityTime.slice(9, 11)) + 8; //Offset for GMT
+    hour = hour.toString();
     var min = teamCityTime.slice(11, 13);
     var sec = teamCityTime.slice(13, 15);
-    console.log(year, month, day, hour, min, sec);
     this.timeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec);
   }
 }
