@@ -25,7 +25,7 @@
           $scope.buildStatus = "broken";
         }
         
-        var currentTimeStamp = Date.now();
+        var currentTimeStamp = new Date();
         $scope.rawTimeElapsed = Math.abs(lastBuildWithOtherStatus.timeStamp - currentTimeStamp);
 
         $interval(function() {
