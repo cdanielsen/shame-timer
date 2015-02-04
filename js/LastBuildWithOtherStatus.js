@@ -6,7 +6,7 @@ var LastBuildWithOtherStatus = {
      this.timeStamp = {};
      this.buildHistoryCounter = 1;
      this.currentBuildSetObject = currentBuildSetObject;
-     this.lastBuildName = this.currentBuildSetObject.buildNames[this.currentBuildSetObject.buildNames.length - 1];
+     this.lastBuildName = "";
      this.getBuildHistories();
      this.getLastBuildWithOtherStatus();
      this.setTimestamp();
@@ -19,7 +19,10 @@ var LastBuildWithOtherStatus = {
       var newRequest = Object.create(SyncGetRequest);
       newRequest.initialize(baseUrl, buildName);
       newRequest.execute();
-      that.buildHistories[buildName] = newRequest.response.build;
+      if (newRequest.response.count > 16) { //Ignore builds that don't get compiled regularly
+        that.buildHistories[buildName] = newRequest.response.build;
+        that.lastBuildName = buildName; 
+      }
     });
   },
   getLastBuildWithOtherStatus : function() {
@@ -46,14 +49,14 @@ var LastBuildWithOtherStatus = {
     }
   },
   setTimestamp : function() {
-    var teamCityTime = this.lastBuildWithOtherStatus.startDate
+    var teamCityTime = this.lastBuildWithOtherStatus.startDate;
     var year = teamCityTime.slice(0, 4);
     var month = teamCityTime.slice(4, 6);
     var day = teamCityTime.slice(6, 8);
-    var hour = parseInt(teamCityTime.slice(9, 11)) + 8; //Offset for GMT
-    hour = hour.toString();
+    var hour = teamCityTime.slice(9, 11);
     var min = teamCityTime.slice(11, 13);
     var sec = teamCityTime.slice(13, 15);
-    this.timeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec);
+    var offset = teamCityTime.slice(16, 20);
+    this.timeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec + "-" + offset);
   }
 }

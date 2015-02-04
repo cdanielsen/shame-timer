@@ -20,7 +20,6 @@ var CurrentBuildSet = {
     currentDevInfo.buildTypes.buildType.forEach(function(build) {
       that.buildNames.push(build.id);
     });
-    this.buildNames.pop(); //eliminate UI Integration Tests from set (not commonly run?)
 	},
 
   getDevBuildObjects : function() {

@@ -44,7 +44,7 @@
     <body ng-app>
         <div ng-controller="timerCtrl" id="main-display">
           <div>Dev Build has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'running': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span></div>
-          <div>for at least</div>
+          <div>for</div>
           <div>{{formattableTime.days()}} : {{formattableTime.hours()}} : {{formattableTime.minutes()}} : {{formattableTime.seconds()}}</div>
         </div>
     </body>
