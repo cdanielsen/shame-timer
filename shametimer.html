@@ -11,8 +11,8 @@
 
     <script>
 
-      var baseUrl = "http://teamcity:8080/guestAuth/app/rest/";
-      var projectResourcePath = "projects/Dev";
+      var baseUrl = "http://teamcity:8080/guestAuth/app/rest/projects/";
+      var projectResourcePath = "Master";
       var currentDevBuilds = Object.create(CurrentBuildSet);
       currentDevBuilds.initialize(baseUrl, projectResourcePath);
       var lastBuildWithOtherStatus = Object.create(LastBuildWithOtherStatus);
@@ -27,14 +27,14 @@
         } else {
           $scope.buildStatus = "broken";
         }
-        
+        $scope.buildName = projectResourcePath;
         var currentTimeStamp = new Date();
         $scope.rawTimeElapsed = Math.abs(lastBuildWithOtherStatus.timeStamp - currentTimeStamp);
 
         $interval(function() {
-          $scope.formattableTime = moment.duration($scope.rawTimeElapsed, "milliseconds").format("dd:hh:mm:ss:SSS", {trim: false});
-          $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1;
-        }, 1);
+          $scope.formattableTime = moment.duration($scope.rawTimeElapsed, "milliseconds").format("dd:hh:mm:ss", {trim: false});
+          $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1000;
+        }, 1000);
       };
 
       //End controller
@@ -44,7 +44,7 @@
     </head>
     <body ng-app>
         <div ng-controller="timerCtrl" id="main-display">
-          <div>Dev has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'running': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span></div>
+          <div>{{buildName}} has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'running': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span></div>
           <div>for</div>
           <div>{{formattableTime}}</div>
         </div>
