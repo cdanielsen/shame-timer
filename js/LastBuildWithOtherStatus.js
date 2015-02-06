@@ -36,7 +36,7 @@ var LastBuildWithOtherStatus = {
         this.lastBuildWithOtherStatus = this.buildHistories[this.lastBuildName][this.buildHistoryCounter - 1];
       } else {
         this.buildHistoryCounter = this.buildHistoryCounter + 1;
-        getLastBuildWithOtherStatus();
+        this.getLastBuildWithOtherStatus();
       }
 
     } else { //"FAILURE"

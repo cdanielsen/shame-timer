@@ -2,6 +2,7 @@
  	<head>
     <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.js"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+    <script src="js/moment-duration-format.js"></script>
     <script src="js/SyncGetRequest.js"></script>
     <script src="js/CurrentBuildSet.js"></script>
     <script src="js/LastBuildWithOtherStatus.js"></script>
@@ -31,7 +32,7 @@
         $scope.rawTimeElapsed = Math.abs(lastBuildWithOtherStatus.timeStamp - currentTimeStamp);
 
         $interval(function() {
-          $scope.formattableTime = moment.duration($scope.rawTimeElapsed);
+          $scope.formattableTime = moment.duration($scope.rawTimeElapsed, "milliseconds").format("dd:hh:mm:ss", {trim: false});
           $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1000;
         }, 1000);
       };
@@ -43,9 +44,9 @@
     </head>
     <body ng-app>
         <div ng-controller="timerCtrl" id="main-display">
-          <div>Dev Build has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'running': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span></div>
+          <div>Dev has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'running': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span></div>
           <div>for</div>
-          <div>{{formattableTime.days()}} : {{formattableTime.hours()}} : {{formattableTime.minutes()}} : {{formattableTime.seconds()}}</div>
+          <div>{{formattableTime}}</div>
         </div>
     </body>
 </html>
