@@ -32,9 +32,9 @@
         $scope.rawTimeElapsed = Math.abs(lastBuildWithOtherStatus.timeStamp - currentTimeStamp);
 
         $interval(function() {
-          $scope.formattableTime = moment.duration($scope.rawTimeElapsed, "milliseconds").format("dd:hh:mm:ss", {trim: false});
-          $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1000;
-        }, 1000);
+          $scope.formattableTime = moment.duration($scope.rawTimeElapsed, "milliseconds").format("dd:hh:mm:ss:SSS", {trim: false});
+          $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1;
+        }, 1);
       };
 
       //End controller
