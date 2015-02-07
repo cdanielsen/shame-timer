@@ -17,9 +17,10 @@ var LastBuildWithOtherStatus = {
     var baseUrl = "http://teamcity:8080/guestAuth/app/rest/builds/?locator=buildType:";
     this.currentBuildSetObject.buildNames.forEach(function(buildName) {
       var newRequest = Object.create(SyncGetRequest);
+      buildName = buildName + ",branch:default:any";
       newRequest.initialize(baseUrl, buildName);
       newRequest.execute();
-      if (newRequest.response.count > 16) { //Ignore builds that don't get compiled regularly
+      if (newRequest.response.count > 20) { //Ignore builds that don't get compiled regularly
         that.buildHistories[buildName] = newRequest.response.build;
         that.lastBuildName = buildName; 
       }
