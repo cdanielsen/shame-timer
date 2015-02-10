@@ -20,10 +20,8 @@ var LastBuildWithOtherStatus = {
       buildName = buildName + ",branch:default:any";
       newRequest.initialize(baseUrl, buildName);
       newRequest.execute();
-      if (newRequest.response.count > 20) { //Ignore builds that don't get compiled regularly
-        that.buildHistories[buildName] = newRequest.response.build;
-        that.lastBuildName = buildName; 
-      }
+      that.buildHistories[buildName] = newRequest.response.build;
+      that.lastBuildName = buildName; 
     });
   },
   getLastBuildWithOtherStatus : function() {
@@ -31,7 +29,6 @@ var LastBuildWithOtherStatus = {
     for (var buildHistory in this.buildHistories) {
       currentSet.push(this.buildHistories[buildHistory][this.buildHistoryCounter].status);
     };
-    console.log(currentSet);
     if (this.currentBuildSetObject.status === "SUCCESS") {
       if (currentSet.indexOf("FAILURE") !== -1) {
         this.lastBuildWithOtherStatus = this.buildHistories[this.lastBuildName][this.buildHistoryCounter - 1];
