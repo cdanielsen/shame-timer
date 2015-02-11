@@ -4,13 +4,14 @@ var LastBuildWithOtherStatus = {
      this.buildHistories = {};
      this.lastBuildWithOtherStatus = {};
      this.timeStamp = {};
-     this.buildHistoryCounter = 1;
+     this.buildHistoryCounter = 0;
      this.currentBuildSetObject = currentBuildSetObject;
 
      this.getBuildHistories();
      this.getLastBuildWithOtherStatus();
      this.setTimestamp();
-     console.log("Last build in a previous set with same overall status as current:", this.timeStamp, this.lastBuildWithOtherStatus);
+     console.log("Build has been this way since...", this.timeStamp);
+     console.log("Latest build in the last build set with the same overall status as the current one:", this.lastBuildWithOtherStatus);
 	},
   getBuildHistories : function() {
     var that = this;
@@ -24,16 +25,26 @@ var LastBuildWithOtherStatus = {
   },
 
   getLastBuildWithOtherStatus : function() {
-    var currentSetStatusList = [];
+    var currentBuildSetStatusArray = [];
     this.currentSetObjects = [];
+
     for (var buildHistory in this.buildHistories) {
-      currentSetStatusList.push(this.buildHistories[buildHistory][this.buildHistoryCounter].status);
       this.currentSetObjects.push(this.buildHistories[buildHistory][this.buildHistoryCounter]);
     };
     this.sortSetOfBuilds();
+    
+    //this block for logging purposes...
+    this.currentSetObjects.forEach(function(build) { currentBuildSetStatusArray.push(build.status) });
+    console.log(currentBuildSetStatusArray);
+    
+    if (this.buildHistoryCounter === 0) { //this block ensures previousSetObject is set in case there is only one build history
+      this.previousSetObjects = this.currentSetObjects
+      this.buildHistoryCounter = this.buildHistoryCounter + 1;
+      this.getLastBuildWithOtherStatus();
+    }
 
     if (this.currentBuildSetObject.status === "SUCCESS") {
-      if (currentSetStatusList.indexOf("FAILURE") !== -1) {
+      if (this.currentSetObjects.map(function(object) {return object.status;}).indexOf("FAILURE") !== -1) {
         this.lastBuildWithOtherStatus = this.previousSetObjects[0];
       } else {
         this.previousSetObjects = this.currentSetObjects;
@@ -42,7 +53,7 @@ var LastBuildWithOtherStatus = {
       }
 
     } else { //"FAILURE"
-      if (currentSetStatusList.indexOf("FAILURE") === -1) {
+      if (this.currentSetObjects.map(function(object) {return object.status;}).indexOf("FAILURE") === -1) {
         this.lastBuildWithOtherStatus = this.previousSetObjects[0];
       } else {
         this.previousSetObjects = this.currentSetObjects;
