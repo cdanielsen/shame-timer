@@ -6,7 +6,7 @@ var LastBuildWithOtherStatus = {
      this.timeStamp = {};
      this.buildHistoryCounter = 1;
      this.currentBuildSetObject = currentBuildSetObject;
-     this.lastBuildName = "";
+
      this.getBuildHistories();
      this.getLastBuildWithOtherStatus();
      this.setTimestamp();
@@ -17,35 +17,41 @@ var LastBuildWithOtherStatus = {
     var baseUrl = "http://teamcity:8080/guestAuth/app/rest/builds/?locator=buildType:";
     this.currentBuildSetObject.buildNames.forEach(function(buildName) {
       var newRequest = Object.create(SyncGetRequest);
-      buildName = buildName + ",branch:default:any";
-      newRequest.initialize(baseUrl, buildName);
+      newRequest.initialize(baseUrl, (buildName + ",branch:default:any"));
       newRequest.execute();
       that.buildHistories[buildName] = newRequest.response.build;
-      that.lastBuildName = buildName; 
     });
   },
+
   getLastBuildWithOtherStatus : function() {
-    var currentSet = [];
+    var currentSetStatusList = [];
+    this.currentSetObjects = [];
     for (var buildHistory in this.buildHistories) {
-      currentSet.push(this.buildHistories[buildHistory][this.buildHistoryCounter].status);
+      currentSetStatusList.push(this.buildHistories[buildHistory][this.buildHistoryCounter].status);
+      this.currentSetObjects.push(this.buildHistories[buildHistory][this.buildHistoryCounter]);
     };
+    this.sortSetOfBuilds();
+
     if (this.currentBuildSetObject.status === "SUCCESS") {
-      if (currentSet.indexOf("FAILURE") !== -1) {
-        this.lastBuildWithOtherStatus = this.buildHistories[this.lastBuildName][this.buildHistoryCounter - 1];
+      if (currentSetStatusList.indexOf("FAILURE") !== -1) {
+        this.lastBuildWithOtherStatus = this.previousSetObjects[0];
       } else {
+        this.previousSetObjects = this.currentSetObjects;
         this.buildHistoryCounter = this.buildHistoryCounter + 1;
         this.getLastBuildWithOtherStatus();
       }
 
     } else { //"FAILURE"
-      if (currentSet.indexOf("FAILURE") === -1) {
-        this.lastBuildWithOtherStatus = this.buildHistories[this.lastBuildName][this.buildHistoryCounter - 1];
+      if (currentSetStatusList.indexOf("FAILURE") === -1) {
+        this.lastBuildWithOtherStatus = this.previousSetObjects[0];
       } else {
+        this.previousSetObjects = this.currentSetObjects;
         this.buildHistoryCounter = this.buildHistoryCounter + 1;
         this.getLastBuildWithOtherStatus();
       }
     }
   },
+
   setTimestamp : function() {
     var teamCityTime = this.lastBuildWithOtherStatus.startDate;
     var year = teamCityTime.slice(0, 4);
@@ -56,5 +62,14 @@ var LastBuildWithOtherStatus = {
     var sec = teamCityTime.slice(13, 15);
     var offset = teamCityTime.slice(16, 20);
     this.timeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec + "-" + offset);
+  },
+
+  sortSetOfBuilds : function(){
+    this.currentSetObjects.sort(function(a,b){
+      var aTimeStamp = a.startDate.slice(0,8) + a.startDate.slice(9,15);
+      var bTimeStamp = b.startDate.slice(0,8) + b.startDate.slice(9,15);
+      return aTimeStamp - bTimeStamp;
+    });
+    this.currentSetObjects.reverse();
   }
 }
