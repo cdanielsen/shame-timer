@@ -1,17 +1,17 @@
-var LastBuildWithOtherStatus = {
+var LastBuildWithSameStatus = {
 	initialize : function(currentBuildSetObject) {
      console.log("***Build Set Status History***");
      this.buildHistories = {};
-     this.lastBuildWithOtherStatus = {};
+     this.lastBuildWithSameStatus = {};
      this.timeStamp = {};
      this.buildHistoryCounter = 0;
      this.currentBuildSetObject = currentBuildSetObject;
 
      this.getBuildHistories();
-     this.getLastBuildWithOtherStatus();
+     this.getLastBuildWithSameStatus();
      this.setTimestamp();
      console.log("Build has been this way since...", this.timeStamp);
-     console.log("Latest build in the last build set with the same overall status as the current one:", this.lastBuildWithOtherStatus);
+     console.log("Last(successful)/first(failing) build in the last build set with the same overall status as the current one:", this.lastBuildWithSameStatus);
 	},
   getBuildHistories : function() {
     var that = this;
@@ -24,13 +24,15 @@ var LastBuildWithOtherStatus = {
     });
   },
 
-  getLastBuildWithOtherStatus : function() {
+  getLastBuildWithSameStatus : function() {
     var currentBuildSetStatusArray = [];
+    var firstFailFoundIndex
     this.currentSetObjects = [];
 
     for (var buildHistory in this.buildHistories) {
       this.currentSetObjects.push(this.buildHistories[buildHistory][this.buildHistoryCounter]);
     };
+    
     this.sortSetOfBuilds();
     
     //this block for logging purposes...
@@ -38,41 +40,30 @@ var LastBuildWithOtherStatus = {
     console.log(currentBuildSetStatusArray);
     
     if (this.buildHistoryCounter === 0) { //this block ensures previousSetObject is set in case there is only one build history
-      this.previousSetObjects = this.currentSetObjects
+      this.previousSetObjects = this.currentSetObjects;
       this.buildHistoryCounter = this.buildHistoryCounter + 1;
-      this.getLastBuildWithOtherStatus();
+      this.getLastBuildWithSameStatus();
     }
 
     if (this.currentBuildSetObject.status === "SUCCESS") {
-      if (this.currentSetObjects.map(function(object) {return object.status;}).indexOf("FAILURE") !== -1) {
-        this.lastBuildWithOtherStatus = this.previousSetObjects[0];
+      if (this.currentSetObjects.map(function(object) {return object.status}).indexOf("FAILURE") !== -1) {
+        this.lastBuildWithSameStatus = this.previousSetObjects[0];
       } else {
         this.previousSetObjects = this.currentSetObjects;
         this.buildHistoryCounter = this.buildHistoryCounter + 1;
-        this.getLastBuildWithOtherStatus();
+        this.getLastBuildWithSameStatus();
       }
 
     } else { //"FAILURE"
-      if (this.currentSetObjects.map(function(object) {return object.status;}).indexOf("FAILURE") === -1) {
-        this.lastBuildWithOtherStatus = this.previousSetObjects[0];
+      if (this.currentSetObjects.map(function(object) {return object.status}).indexOf("FAILURE") === -1) {
+        firstFailFoundIndex = this.previousSetObjects.map(function(object) {return object.status}).indexOf("FAILURE");
+        this.lastBuildWithSameStatus = this.previousSetObjects[firstFailFoundIndex];
       } else {
         this.previousSetObjects = this.currentSetObjects;
         this.buildHistoryCounter = this.buildHistoryCounter + 1;
-        this.getLastBuildWithOtherStatus();
+        this.getLastBuildWithSameStatus();
       }
     }
-  },
-
-  setTimestamp : function() {
-    var teamCityTime = this.lastBuildWithOtherStatus.startDate;
-    var year = teamCityTime.slice(0, 4);
-    var month = teamCityTime.slice(4, 6);
-    var day = teamCityTime.slice(6, 8);
-    var hour = teamCityTime.slice(9, 11);
-    var min = teamCityTime.slice(11, 13);
-    var sec = teamCityTime.slice(13, 15);
-    var offset = teamCityTime.slice(16, 20);
-    this.timeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec + "-" + offset);
   },
 
   sortSetOfBuilds : function(){
@@ -82,5 +73,17 @@ var LastBuildWithOtherStatus = {
       return aTimeStamp - bTimeStamp;
     });
     this.currentSetObjects.reverse();
+  },
+
+  setTimestamp : function() {
+    var teamCityTime = this.lastBuildWithSameStatus.startDate;
+    var year = teamCityTime.slice(0, 4);
+    var month = teamCityTime.slice(4, 6);
+    var day = teamCityTime.slice(6, 8);
+    var hour = teamCityTime.slice(9, 11);
+    var min = teamCityTime.slice(11, 13);
+    var sec = teamCityTime.slice(13, 15);
+    var offset = teamCityTime.slice(16, 20);
+    this.timeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec + "-" + offset);
   }
 }

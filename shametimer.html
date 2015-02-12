@@ -5,7 +5,7 @@
     <script src="js/moment-duration-format.js"></script>
     <script src="js/SyncGetRequest.js"></script>
     <script src="js/CurrentBuildSet.js"></script>
-    <script src="js/LastBuildWithOtherStatus.js"></script>
+    <script src="js/LastBuildWithSameStatus.js"></script>
     <link href='http://fonts.googleapis.com/css?family=Play' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="styles.css" type="text/css">
 
@@ -15,21 +15,21 @@
       var projectResourcePath = "Dev";
       var currentDevBuilds = Object.create(CurrentBuildSet);
       currentDevBuilds.initialize(baseUrl, projectResourcePath);
-      var lastBuildWithOtherStatus = Object.create(LastBuildWithOtherStatus);
-      lastBuildWithOtherStatus.initialize(currentDevBuilds);
+      var lastBuildWithSameStatus = Object.create(LastBuildWithSameStatus);
+      lastBuildWithSameStatus.initialize(currentDevBuilds);
 
 
       //Begin angular controller
 
       function timerCtrl($scope, $interval){
         if (currentDevBuilds.status === "SUCCESS") {
-          $scope.buildStatus = "running";
+          $scope.buildStatus = "up";
         } else {
           $scope.buildStatus = "broken";
         }
         $scope.buildName = projectResourcePath;
         var currentTimeStamp = new Date();
-        $scope.rawTimeElapsed = Math.abs(lastBuildWithOtherStatus.timeStamp - currentTimeStamp);
+        $scope.rawTimeElapsed = Math.abs(lastBuildWithSameStatus.timeStamp - currentTimeStamp);
 
         $interval(function() {
           $scope.formattableTime = moment.duration($scope.rawTimeElapsed, "milliseconds").format("dd:hh:mm:ss", {trim: false});
@@ -44,7 +44,7 @@
     </head>
     <body ng-app>
         <div ng-controller="timerCtrl" id="main-display">
-          <div>{{buildName}} has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'running': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span></div>
+          <div>{{buildName}} has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'up': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span></div>
           <div>for</div>
           <div>{{formattableTime}}</div>
         </div>
