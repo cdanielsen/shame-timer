@@ -26,7 +26,7 @@ describe("SyncGetRequest", function() {
       var resourcePath = "projects/Dev";
       newRequest.initialize(baseUrl, resourcePath);
       newRequest.execute();
-      expect(typeof(newRequest.response)).toBe("object"); //not the best assertion...
+      expect(newRequest.response).toBeObject(); //not the best assertion...
     })
   }); //end #execute
 

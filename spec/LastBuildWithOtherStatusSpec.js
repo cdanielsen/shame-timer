@@ -5,26 +5,25 @@ describe("LastBuildWithOtherStatus", function() {
   beforeEach(function(){
     currentBuildSet = Object.create(CurrentBuildSet);
     currentBuildSet.initialize(baseUrl, resourcePath);
-    lastDifferentBuild = Object.create(LastBuildWithOtherStatus);
-    lastDifferentBuild.initialize(currentBuildSet);
+    lastSameBuild = Object.create(LastBuildWithSameStatus);
+    lastSameBuild.initialize(currentBuildSet);
   })
 
   describe("#initialize", function() {
-		it("should set the timestamp and currentBuildSet properties", function() {
-      expect(lastDifferentBuild.timeStamp).toBeObject();
-      expect(lastDifferentBuild.currentBuildSetObject).toBeObject();
+		it("should set the currentBuildSet property", function() {
+      expect(lastSameBuild.currentBuildSetObject.builds).toBeNonEmptyArray();
     });
 	});
 
-  describe("#getLastBuildWithOtherStatus", function() {
-    it("should find the last build with the opposite status of the currentBuildSet", function() {
-      expect(lastDifferentBuild.lastBuildWithOtherStatus).toBeObject();
+  describe("#getLastBuildWithSameStatus", function() {
+    it("should find the last build with the same status of the currentBuildSet", function() {
+      expect(lastSameBuild.lastBuildWithSameStatus.buildTypeId).toBeNonEmptyString();
     });
   });
 
   describe("#setTimestamp", function() {
     it("should set the timestamp of the object", function() {
-      expect(lastDifferentBuild.timeStamp).toBeObject();
+      expect(lastSameBuild.timeStamp).toBeDate();
     });
   });
 

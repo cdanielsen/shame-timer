@@ -5,14 +5,16 @@ var LastBuildWithSameStatus = {
      this.lastBuildWithSameStatus = {};
      this.timeStamp = {};
      this.buildHistoryCounter = 0;
+     this.previousSet = [];
+     this.currentSet = [];
      this.currentBuildSetObject = currentBuildSetObject;
-
      this.getBuildHistories();
      this.getLastBuildWithSameStatus();
      this.setTimestamp();
      console.log("Build has been this way since...", this.timeStamp);
      console.log("Last(successful)/first(failing) build in the last build set with the same overall status as the current one:", this.lastBuildWithSameStatus);
 	},
+
   getBuildHistories : function() {
     var that = this;
     var baseUrl = "http://teamcity:8080/guestAuth/app/rest/builds/?locator=buildType:";
@@ -25,41 +27,41 @@ var LastBuildWithSameStatus = {
   },
 
   getLastBuildWithSameStatus : function() {
-    var currentBuildSetStatusArray = [];
+    var currentSetStatusArray = [];
     var firstFailFoundIndex
-    this.currentSetObjects = [];
+    this.currentSet = [];
 
     for (var buildHistory in this.buildHistories) {
-      this.currentSetObjects.push(this.buildHistories[buildHistory][this.buildHistoryCounter]);
+      this.currentSet.push(this.buildHistories[buildHistory][this.buildHistoryCounter]);
     };
-    
+    // sort currentSet from last completed build to earliest
     this.sortSetOfBuilds();
     
-    //this block for logging purposes...
-    this.currentSetObjects.forEach(function(build) { currentBuildSetStatusArray.push(build.status) });
-    console.log(currentBuildSetStatusArray);
+    // this block for logging purposes...
+    console.log(this.currentSet.map(function(build) { return build.status }));
     
-    if (this.buildHistoryCounter === 0) { //this block ensures previousSetObject is set in case there is only one build history
-      this.previousSetObjects = this.currentSetObjects;
+    // this block ensures previousSetObject is set in case there is only one build history
+    if (this.buildHistoryCounter === 0) {
+      this.previousSet = this.currentSet;
       this.buildHistoryCounter = this.buildHistoryCounter + 1;
       this.getLastBuildWithSameStatus();
     }
 
     if (this.currentBuildSetObject.status === "SUCCESS") {
-      if (this.currentSetObjects.map(function(object) {return object.status}).indexOf("FAILURE") !== -1) {
-        this.lastBuildWithSameStatus = this.previousSetObjects[0];
+      if (this.currentSet.map(function(object) {return object.status}).indexOf("FAILURE") !== -1) {
+        this.lastBuildWithSameStatus = this.previousSet[0];
       } else {
-        this.previousSetObjects = this.currentSetObjects;
+        this.previousSet = this.currentSet;
         this.buildHistoryCounter = this.buildHistoryCounter + 1;
         this.getLastBuildWithSameStatus();
       }
 
     } else { //"FAILURE"
-      if (this.currentSetObjects.map(function(object) {return object.status}).indexOf("FAILURE") === -1) {
-        firstFailFoundIndex = this.previousSetObjects.map(function(object) {return object.status}).indexOf("FAILURE");
-        this.lastBuildWithSameStatus = this.previousSetObjects[firstFailFoundIndex];
+      if (this.currentSet.map(function(object) {return object.status}).indexOf("FAILURE") === -1) {
+        firstFailFoundIndex = this.previousSet.map(function(object) {return object.status}).indexOf("FAILURE");
+        this.lastBuildWithSameStatus = this.previousSet[firstFailFoundIndex];
       } else {
-        this.previousSetObjects = this.currentSetObjects;
+        this.previousSet = this.currentSet;
         this.buildHistoryCounter = this.buildHistoryCounter + 1;
         this.getLastBuildWithSameStatus();
       }
@@ -67,12 +69,12 @@ var LastBuildWithSameStatus = {
   },
 
   sortSetOfBuilds : function(){
-    this.currentSetObjects.sort(function(a,b){
+    this.currentSet.sort(function(a,b){
       var aTimeStamp = a.startDate.slice(0,8) + a.startDate.slice(9,15);
       var bTimeStamp = b.startDate.slice(0,8) + b.startDate.slice(9,15);
       return aTimeStamp - bTimeStamp;
     });
-    this.currentSetObjects.reverse();
+    this.currentSet.reverse();
   },
 
   setTimestamp : function() {
