@@ -60,12 +60,12 @@
         <div ng-controller="timerCtrl" id="main-display">
           <div>{{buildName}} has been <span id="buildStatus" ng-model="buildStatus" ng-class="{'broken': 'broken-color', 'up': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span> for</div>
           <div>{{formattedTime}}</div>
-          <div class="record-container" ng-switch on="buildStatus">Previous record:
-            <div ng-switch-when="up">{{longestSuccessDuration}}</div><div ng-switch-when="broken">{{longestFailDuration}}</div>
-          </div>
           <div class="record-container" ng-switch on="buildStatus">
-            <div ng-switch-when="up">{{longestSuccessDate}}</div><div ng-switch-when="broken">{{longestFailDate}}</div>
+            <div ng-switch-when="up">Previous Record: {{longestSuccessDuration}} | {{longestSuccessDate}}</div><div ng-switch-when="broken">Previous Record: {{longestFailDuration}} | {{longestFailDate}}</div>
           </div>
+<!--           <div class="record-container" ng-switch on="buildStatus">
+            <div ng-switch-when="up">{{longestSuccessDate}}</div><div ng-switch-when="broken">{{longestFailDate}}</div>
+          </div> -->
         </div>
     </body>
 </html>
