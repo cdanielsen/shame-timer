@@ -22,18 +22,23 @@
       //Begin angular controller
 
       function timerCtrl($scope, $interval){
-        if (currentDevBuilds.status === "SUCCESS") {
-          $scope.buildStatus = "up";
-        } else {
-          $scope.buildStatus = "broken";
-        }
+        currentDevBuilds.status === "SUCCESS" ? $scope.buildStatus = "up" : $scope.buildStatus = "broken";
+
         $scope.buildName = projectResourcePath;
         var currentTimeStamp = new Date();
         $scope.rawTimeElapsed = Math.abs(lastBuildWithSameStatus.timeStamp - currentTimeStamp);
 
         $interval(function() {
-          $scope.formattableTime = moment.duration($scope.rawTimeElapsed, "milliseconds").format("dd:hh:mm:ss", {trim: false});
+          $scope.longestSuccess = moment.duration(parseInt(localStorage.longestSuccess), "milliseconds").format("dd:hh:mm:ss", {trim: false});
+          $scope.longestFail = moment.duration(parseInt(localStorage.longestFail), "milliseconds").format("dd:hh:mm:ss", {trim: false});
+          $scope.formattedTime = moment.duration($scope.rawTimeElapsed, "milliseconds").format("dd:hh:mm:ss", {trim: false});
           $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1000;
+          if ($scope.buildStatus === "up" && (parseInt(localStorage.longestSuccess) < $scope.rawTimeElapsed)) {
+            localStorage.longestSuccess = $scope.rawTimeElapsed.toString()
+          }
+          else if ($scope.buildStatus === "broken" && (parseInt(localStorage.longestFail) < $scope.rawTimeElapsed)) {
+            localStorage.longestFail = $scope.rawTimeElapsed.toString();
+          }
         }, 1000);
       };
 
@@ -44,9 +49,9 @@
     </head>
     <body ng-app>
         <div ng-controller="timerCtrl" id="main-display">
-          <div>{{buildName}} has been <span id="buildStatus" ng-class="{'broken': 'broken-color', 'up': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span></div>
-          <div>for</div>
-          <div>{{formattableTime}}</div>
+          <div>{{buildName}} has been <span id="buildStatus" ng-model="buildStatus" ng-class="{'broken': 'broken-color', 'up': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span> for</div>
+          <div>{{formattedTime}}</div>
+          <div id="record-container" ng-switch on="buildStatus">Previous record: <div ng-switch-when="up">{{longestSuccess}}</div><div ng-switch-when="broken">{{longestFail}}</div>
         </div>
     </body>
 </html>

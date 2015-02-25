@@ -11,6 +11,7 @@ var LastBuildWithSameStatus = {
      this.getBuildHistories();
      this.getLastBuildWithSameStatus();
      this.setTimestamp();
+     // this.setLongestDuration();
      console.log("Build has been this way since...", this.timeStamp);
      console.log("Last(successful)/first(failing) build in the last build set with the same overall status as the current one:", this.lastBuildWithSameStatus);
 	},
@@ -88,4 +89,8 @@ var LastBuildWithSameStatus = {
     var offset = teamCityTime.slice(16, 20);
     this.timeStamp = new Date(year + "-" + month + "-" + day + "T" + hour + ":" + min + ":" + sec + "-" + offset);
   }
+
+  // setLongestDuration : function() {
+  //   localStorage.longestFail = (Date.now() - this.timeStamp);
+  // }
 }
