@@ -19,30 +19,39 @@
       lastBuildWithSameStatus.initialize(currentDevBuilds);
 
 
-      //Begin angular controller
-
+      // Begin angular controller
       function timerCtrl($scope, $interval){
         currentDevBuilds.status === "SUCCESS" ? $scope.buildStatus = "up" : $scope.buildStatus = "broken";
+        
+        var currentTimeStamp = new Date();
 
         $scope.buildName = projectResourcePath;
-        var currentTimeStamp = new Date();
         $scope.rawTimeElapsed = Math.abs(lastBuildWithSameStatus.timeStamp - currentTimeStamp);
+        $scope.longestSuccessDate = localStorage.longestSuccessDate.toString().slice(0,15);
+        $scope.longestFailDate = localStorage.longestFailDate.toString().slice(0,15);
 
         $interval(function() {
-          $scope.longestSuccess = moment.duration(parseInt(localStorage.longestSuccess), "milliseconds").format("dd:hh:mm:ss", {trim: false});
-          $scope.longestFail = moment.duration(parseInt(localStorage.longestFail), "milliseconds").format("dd:hh:mm:ss", {trim: false});
+          var longestSuccessDurationInt = parseInt(localStorage.longestSuccessDuration);
+          var longestFailDurationInt = parseInt(localStorage.longestFailDuration);
+          
+          $scope.longestSuccessDuration = moment.duration(longestSuccessDurationInt, "milliseconds").format("dd:hh:mm:ss", {trim: false});
+          $scope.longestFailDuration = moment.duration(longestFailDurationInt, "milliseconds").format("dd:hh:mm:ss", {trim: false});
           $scope.formattedTime = moment.duration($scope.rawTimeElapsed, "milliseconds").format("dd:hh:mm:ss", {trim: false});
           $scope.rawTimeElapsed = $scope.rawTimeElapsed + 1000;
-          if ($scope.buildStatus === "up" && (parseInt(localStorage.longestSuccess) < $scope.rawTimeElapsed)) {
-            localStorage.longestSuccess = $scope.rawTimeElapsed.toString()
-          }
-          else if ($scope.buildStatus === "broken" && (parseInt(localStorage.longestFail) < $scope.rawTimeElapsed)) {
-            localStorage.longestFail = $scope.rawTimeElapsed.toString();
+
+          // New success record!
+          if ($scope.buildStatus === "up" && (longestSuccessDurationInt < $scope.rawTimeElapsed) ) {
+            localStorage.longestSuccessDuration = $scope.rawTimeElapsed.toString()
+            localStorage.longestSuccessDate = new Date();
+          } // New failure record!
+          else if ($scope.buildStatus === "broken" && (longestFailDurationInt < $scope.rawTimeElapsed) ) {
+            localStorage.longestFailDuration = $scope.rawTimeElapsed.toString();
+            localStorage.longestSuccessDate = new Date();
           }
         }, 1000);
       };
 
-      //End controller
+      // End controller
       
     </script>
 
@@ -51,7 +60,12 @@
         <div ng-controller="timerCtrl" id="main-display">
           <div>{{buildName}} has been <span id="buildStatus" ng-model="buildStatus" ng-class="{'broken': 'broken-color', 'up': 'running-color'}[buildStatus]" class="statusColor">{{buildStatus}}</span> for</div>
           <div>{{formattedTime}}</div>
-          <div id="record-container" ng-switch on="buildStatus">Previous record: <div ng-switch-when="up">{{longestSuccess}}</div><div ng-switch-when="broken">{{longestFail}}</div>
+          <div class="record-container" ng-switch on="buildStatus">Previous record:
+            <div ng-switch-when="up">{{longestSuccessDuration}}</div><div ng-switch-when="broken">{{longestFailDuration}}</div>
+          </div>
+          <div class="record-container" ng-switch on="buildStatus">
+            <div ng-switch-when="up">{{longestSuccessDate}}</div><div ng-switch-when="broken">{{longestFailDate}}</div>
+          </div>
         </div>
     </body>
 </html>

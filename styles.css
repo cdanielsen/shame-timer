@@ -16,8 +16,8 @@
 	color: red;
 }
 
-#record-container {
-	margin-top: 50px;
+.record-container {
+	margin-top: 10px;
 	font-size: 	50px;
 	display: flex;
 	flex-direction: column;
