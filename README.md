@@ -13,9 +13,9 @@ A small AngularJS app to display a dynamic view of how long a project from TeamC
 - In shametimer.html, adjust the baseURL and projectResourcePath to your local team city settings and project name, respectively.
 - In CurrentBuildSet, add any build names to the && expression which should NOT be included in calculating the timestamp
 - In a browser window, run the following script in the console (this sets needed local storage variables)
-'''
+```
 localStorage.longestFailDuration = 0;localStorage.longestSuccessDuration = 0;localStorage.longestFailDate = new Date;localStorage.longestSuccessDate = new Date;
-'''
+```
 - On load (Chrome or Firefox only!), console should show the build set history: a list of arrays FROM the build set before the current one TO the first build set with a different overall status (!)
 
 ## Dependencies
