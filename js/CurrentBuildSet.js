@@ -18,8 +18,9 @@ var CurrentBuildSet = {
     newRequest.execute();
     var currentDevInfo = newRequest.response;
     currentDevInfo.buildTypes.buildType.forEach(function(build) {
+    // exclusion list for builds that are run irregularly
       if (build.id !== "Dev_5DevCodeCoverageNightly" &&
-          build.id !== "Dev_UiAutomationTests") { //exclusion list for builds that are run irregularly
+          build.id !== "Dev_UiAutomationTests") { 
         that.buildNames.push(build.id);
       }
     });
